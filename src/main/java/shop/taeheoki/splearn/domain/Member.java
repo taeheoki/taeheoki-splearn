@@ -1,27 +1,41 @@
 package shop.taeheoki.splearn.domain;
 
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.hibernate.annotations.NaturalId;
 
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import static org.springframework.util.Assert.state;
 
+@Entity
 @Getter
+@ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Embedded
+    @NaturalId
     private Email email;
 
     private String nickname;
 
     private String passwordHash;
 
-    //    @Getter(AccessLevel.NONE)
+    @Enumerated(EnumType.STRING)
     private MemberStatus status;
 
-    public Member() {
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public static Member create(MemberCreateRequest createRequest, PasswordEncoder passwordEncoder) {
+    public static Member register(MemberRegisterRequest createRequest, PasswordEncoder passwordEncoder) {
         Member member = new Member();
 
 

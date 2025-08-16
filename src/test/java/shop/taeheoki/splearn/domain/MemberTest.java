@@ -4,9 +4,10 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static shop.taeheoki.splearn.domain.MemberFixture.createMemberRegisterRequest;
+import static shop.taeheoki.splearn.domain.MemberFixture.createPasswordEncoder;
 
 class MemberTest {
     Member member;
@@ -14,25 +15,13 @@ class MemberTest {
 
     @BeforeEach
     void setUp() {
-        this.passwordEncoder =  new PasswordEncoder() {
-            @Override
-            public String encode(String password) {
-                return password.toUpperCase();
-            }
-
-            @Override
-            public boolean matches(String password, String passwordHash) {
-                return encode(password).equals(passwordHash);
-            }
-        };
-        MemberCreateRequest memberCreateRequest = new MemberCreateRequest("taeheoki@splearn.app", "Taeheoki", "secret");
-        member = Member.create(memberCreateRequest, passwordEncoder);
+        this.passwordEncoder = createPasswordEncoder();
+        member = Member.register(createMemberRegisterRequest(), passwordEncoder);
 
     }
 
-
     @Test
-    void createMember() {
+    void registerMember() {
         assertThat(member.getStatus()).isEqualTo(MemberStatus.PENDING);
     }
 
@@ -114,10 +103,9 @@ class MemberTest {
     @Test
     void invalidEmail() {
         Assertions.assertThatThrownBy(() ->
-                Member.create(new MemberCreateRequest("invalid email", "Taeheoki", "secret"), passwordEncoder)
+                Member.register(createMemberRegisterRequest("invalid email"), passwordEncoder)
         ).isInstanceOf(IllegalArgumentException.class);
 
-        Member.create(new MemberCreateRequest("taeheoki@gmail.com", "Taeheoki", "secret"), passwordEncoder);
+        Member.register(createMemberRegisterRequest(), passwordEncoder);
     }
-
 }
